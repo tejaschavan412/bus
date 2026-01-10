@@ -15,7 +15,7 @@
                     </div>
                     
                     <form method="post">
-                        {% csrf_token %}
+                        {% csrf_token %}  {{ form.as_p }}
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_first_name" class="form-label">First Name</label>
