@@ -8,6 +8,9 @@ from django.db import models
 from datetime import datetime
 from .models import Bus, Route, Stop, Trip
 
+# ==========================
+# PAGE VIEWS
+# ==========================
 
 class BusSearchView(ListView):
     model = Bus
@@ -62,8 +65,9 @@ class BusDetailView(DetailView):
 
 
 # ==========================
-# EXISTING API
+# API VIEWS
 # ==========================
+
 def get_routes_json(request):
     routes = Route.objects.filter(is_active=True).values('id', 'source', 'destination', 'name')
     return JsonResponse(list(routes), safe=False)
@@ -78,7 +82,9 @@ def get_available_seats(request, bus_id):
     except ValueError:
         travel_date = timezone.now().date()
 
+    # Import inside function to avoid circular import errors
     from bookings.models import Booking
+    
     booked_seats = Booking.objects.filter(
         bus=bus,
         travel_date=travel_date,
@@ -95,23 +101,24 @@ def get_available_seats(request, bus_id):
     })
 
 
-# ==================================================
-# ✅ NEW API 1: Fare Preview API
-# ==================================================
 def fare_preview_api(request, bus_id):
+    """
+    Returns estimated fare based on source/destination.
+    Safe version: won't crash if base_fare is missing.
+    """
     bus = get_object_or_404(Bus, pk=bus_id)
 
     source = request.GET.get('source')
     destination = request.GET.get('destination')
 
+    # Safe access to base_fare using getattr
     base_fare = getattr(bus, "base_fare", 0)
 
-    # Simple fallback logic (safe even if stop pricing not implemented)
-    multiplier = 1
-    if source and destination and source != destination:
-        multiplier = 1.0
-
-    estimated_fare = base_fare * multiplier
+    # Simple fallback logic
+    multiplier = 1.0
+    
+    # Placeholder: In future, calculate distance between source/destination here
+    estimated_fare = float(base_fare) * multiplier
 
     return JsonResponse({
         "bus_id": bus.id,
@@ -121,19 +128,21 @@ def fare_preview_api(request, bus_id):
     })
 
 
-# ==================================================
-# ✅ NEW API 2: Live GPS Tracking API
-# ==================================================
 def live_location_api(request, bus_id):
+    """
+    Returns current GPS location of the bus.
+    Safe version: won't crash if tracking fields are missing.
+    """
     bus = get_object_or_404(Bus, pk=bus_id)
 
     today = timezone.now().date()
     trip = Trip.objects.filter(bus=bus, date=today).first()
 
-    # Safe attribute access (won't crash even if fields don't exist)
+    # Safe attribute access using getattr
     latitude = getattr(trip, "current_latitude", None)
     longitude = getattr(trip, "current_longitude", None)
     last_updated = getattr(trip, "location_updated_at", None)
+    status = getattr(trip, "status", None)
 
     return JsonResponse({
         "bus_id": bus.id,
@@ -141,5 +150,5 @@ def live_location_api(request, bus_id):
         "latitude": latitude,
         "longitude": longitude,
         "last_updated": last_updated,
-        "status": getattr(trip, "status", None)
+        "status": status
     })
