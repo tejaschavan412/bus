@@ -1,19 +1,16 @@
 from django.urls import path
 from . import views
 
-app_name = 'buses'
-
 urlpatterns = [
-    path('search/', views.BusSearchView.as_view(), name='search'),
-    path('<int:pk>/', views.BusDetailView.as_view(), name='detail'),
+    # --- Page Views ---
+    path('search/', views.BusSearchView.as_view(), name='bus_search'),
+    path('detail/<int:pk>/', views.BusDetailView.as_view(), name='bus_detail'),
 
-    # existing APIs
-    path('api/routes/', views.get_routes_json, name='routes_api'),
-    path('api/seats/<int:bus_id>/', views.get_available_seats, name='seats_api'),
+    # --- Existing APIs ---
+    path('api/routes/', views.get_routes_json, name='api_routes'),
+    path('api/seats/<int:bus_id>/', views.get_available_seats, name='api_seats'),
 
-    # ======================
-    # NEW APIs
-    # ======================
-    path('api/fare/<int:bus_id>/', views.fare_preview_api, name='fare_api'),
-    path('api/live-location/<int:bus_id>/', views.live_location_api, name='live_location_api'),
+    # --- ✅ NEW APIs (These connect to your new code) ---
+    path('api/fare-preview/<int:bus_id>/', views.fare_preview_api, name='api_fare_preview'),
+    path('api/live-location/<int:bus_id>/', views.live_location_api, name='api_live_location'),
 ]
