@@ -12,6 +12,7 @@ SECRET_KEY = config('SESSION_SECRET', default='django-insecure-dev-key-change-in
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'http://localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
