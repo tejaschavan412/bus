@@ -12,6 +12,7 @@ SECRET_KEY = config('SESSION_SECRET', default='django-insecure-dev-key-change-in
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['your-app-name.render.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
